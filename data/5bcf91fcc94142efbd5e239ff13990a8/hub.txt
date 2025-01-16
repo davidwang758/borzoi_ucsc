@@ -1,5 +1,0 @@
-hub Borzoi Prediction Tracks 5bcf91fcc94142efbd5e239ff13990a8
-shortLabel Borzoi Prediction Tracks
-longLabel Borzoi prediction tracks for reference and alternative allele.
-genomesFile genomes.txt
-email  myEmail@address

@@ -16,8 +16,10 @@ def generate_session_id():
     session_id = str(uuid.uuid4()).replace("-", "")
     return session_id
 
-def create_ucsc_link(install_dir, chrom, center_pos, alts, offset):
+def create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id=""):
     session_id = generate_session_id()
+    if borzoi_session_id != "":
+        borzoi_session_id = borzoi_session_id + "_"
     seq_len = 524288
     poses = [center_pos]
     alts = [alts]
@@ -28,13 +30,14 @@ def create_ucsc_link(install_dir, chrom, center_pos, alts, offset):
     local_dir = data_dir + session_id
     bucket_name = "seqnn-share"
     generate_trackhub_dir(data_dir, session_id)
-    generate_bigwig(seq_len, chrom, center_pos, session_id, data_dir)
+    generate_bigwig(seq_len, chrom, center_pos, session_id, data_dir, borzoi_session_id)
     convert_wig_to_bigwig(session_id, data_dir, util_dir)
-    ref_tsv = pd.read_csv(data_dir + "y_wt.tsv",sep="\t")
+    ref_tsv = pd.read_csv(data_dir + borzoi_session_id + "y_wt.tsv",sep="\t")
     cloud_url_root = "https://storage.googleapis.com/seqnn-share/ucsc/borzoi_app/" 
     bigwig_url_root = cloud_url_root + session_id + "/data/"
     generate_trackDb(data_dir + session_id + "/hg38/trackDb.txt",ref_tsv.columns, bigwig_url_root)
     upload_trackhub(bucket_name, upload_dir, local_dir)
+    delete_temp_dir(local_dir)
 
     # Remove offset if needed
     start_pos = center_pos - seq_len // 2 + offset * 32
@@ -48,7 +51,8 @@ if __name__ == "__main__":
     alts = sys.argv[3]
     offset = int(sys.argv[4])
     install_dir = sys.argv[5] #"/home/davidwang/hackweek2025"
-    out_link = create_ucsc_link(install_dir, chrom, center_pos, alts, offset)
+    borzoi_session_id = sys.argv[6]
+    out_link = create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id)
     print(out_link)
     """
     session_id = generate_session_id()

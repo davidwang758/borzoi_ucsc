@@ -5,6 +5,7 @@ import uuid
 import os
 import sys
 from gcloud_upload import *
+import shutil
 
 def generate_trackhub_dir(root_dir, session_id):
     os.mkdir(root_dir + session_id)
@@ -29,7 +30,7 @@ def generate_trackDb(trackDb_file, tissues, bigwig_url_root):
             f.write("shortLabel " + t + "\n")
             f.write("longLabel Model predictions averaged over: " + t + "\n")
             f.write("visibility full\n")
-            f.write("aggregate solidOverlay\n")
+            f.write("aggregate transparentOverlay\n")
             f.write("showSubtrackColorOnUi on\n")
             f.write("maxHeightPixels 100:50:20\n")
             #f.write("viewLimits 1:100\n")
@@ -43,7 +44,7 @@ def generate_trackDb(trackDb_file, tissues, bigwig_url_root):
             f.write("    graphTypeDefault bar\n")
             f.write("    type bigWig\n")
             f.write("    parent " + t + "\n")
-            f.write("    color 255,0,0\n")
+            f.write("    color 102,102,255\n") # blue
             f.write("\n")
             f.write("    track  ALT_" + t + "\n")
             f.write("    bigDataUrl " + bigwig_url_root + t + "_y_mut.bw\n")
@@ -52,14 +53,14 @@ def generate_trackDb(trackDb_file, tissues, bigwig_url_root):
             f.write("    graphTypeDefault bar\n")
             f.write("    type bigWig\n")
             f.write("    parent " + t + "\n")
-            f.write("    color 0,0,255\n")
+            f.write("    color 255,102,102\n") # red
             f.write("\n")
 
-def generate_bigwig(seq_len, chrom, center_pos, session_id, data_dir):
+def generate_bigwig(seq_len, chrom, center_pos, session_id, data_dir, borzoi_session_id):
     start_pos = center_pos - seq_len // 2 + 16 * 32
 
-    ref_tsv = pd.read_csv(data_dir + "y_wt.tsv",sep="\t")
-    alt_tsv = pd.read_csv(data_dir + "y_mut.tsv",sep="\t")
+    ref_tsv = pd.read_csv(data_dir + borzoi_session_id + "y_wt.tsv",sep="\t")
+    alt_tsv = pd.read_csv(data_dir + borzoi_session_id + "y_mut.tsv",sep="\t")
     header_ref=f'track type=wiggle_0 name="REF" description="Reference Allele Track" visibility=full autoScale=off viewLimits=0:1000 color=0,200,100 maxHeightPixels=100:50:20 graphType=bar priority=20\nfixedStep chrom={chrom} start={start_pos} step=32 span=32'
     header_alt=f'track type=wiggle_0 name="ALT" description="Alternative Allele Track" visibility=full autoScale=off viewLimits=0:1000 color=0,100,100 maxHeightPixels=100:50:20 graphType=bar priority=20\nfixedStep chrom={chrom} start={start_pos} step=32 span=32'
     
@@ -85,6 +86,9 @@ def upload_trackhub(bucket_name, upload_dir, local_dir):
     bucket = get_bucket(gcs_client, bucket_name)
     hubtxt_url = upload_local_directory_to_gcs(local_dir, bucket, upload_dir)
     return hubtxt_url
+
+def delete_temp_dir(local_dir):
+    shutil.rmtree(local_dir)
 
 if __name__ == "__main__":
     session_id = str(uuid.uuid4()).replace("-", "")
