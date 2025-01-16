@@ -1,3 +1,5 @@
 Track_Prediction.ipynb
 hg38
 push_git.sh
+.ipynb_checkpoints
+src/__pycache__
