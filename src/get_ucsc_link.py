@@ -16,7 +16,7 @@ def generate_session_id():
     session_id = str(uuid.uuid4()).replace("-", "")
     return session_id
 
-def create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id=""):
+def create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id="", window_size):
     session_id = generate_session_id()
     if borzoi_session_id != "":
         borzoi_session_id = borzoi_session_id + "_"
@@ -40,8 +40,9 @@ def create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_sessio
     delete_temp_dir(local_dir)
 
     # Remove offset if needed
-    start_pos = center_pos - seq_len // 2 + offset * 32
-    end_pos = center_pos + seq_len // 2 - offset * 32
+    window_size = window_size // 32 * 32
+    start_pos = center_pos - window_size // 2 + offset * 32
+    end_pos = center_pos + window_size // 2 - offset * 32
     out_link = get_link(chrom, start_pos, end_pos, session_id, cloud_url_root)
     return out_link
 
@@ -52,7 +53,8 @@ if __name__ == "__main__":
     offset = int(sys.argv[4])
     install_dir = sys.argv[5] #"/home/davidwang/hackweek2025"
     borzoi_session_id = sys.argv[6]
-    out_link = create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id)
+    window_size = int(sys.argv[7])
+    out_link = create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id, window_size)
     print(out_link)
     """
     session_id = generate_session_id()
