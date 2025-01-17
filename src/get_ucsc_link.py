@@ -16,7 +16,7 @@ def generate_session_id():
     session_id = str(uuid.uuid4()).replace("-", "")
     return session_id
 
-def create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id="", window_size):
+def create_ucsc_link(install_dir, chrom, center_pos, alts, offset, window_size, borzoi_session_id="", ):
     session_id = generate_session_id()
     if borzoi_session_id != "":
         borzoi_session_id = borzoi_session_id + "_"
@@ -51,10 +51,11 @@ if __name__ == "__main__":
     center_pos = int(sys.argv[2])
     alts = sys.argv[3]
     offset = int(sys.argv[4])
-    install_dir = sys.argv[5] #"/home/davidwang/hackweek2025"
-    borzoi_session_id = sys.argv[6]
-    window_size = int(sys.argv[7])
-    out_link = create_ucsc_link(install_dir, chrom, center_pos, alts, offset, borzoi_session_id, window_size)
+    window_size = int(sys.argv[5])
+    install_dir = sys.argv[6] #"/home/davidwang/hackweek2025"
+    borzoi_session_id = sys.argv[7]
+
+    out_link = create_ucsc_link(install_dir, chrom, center_pos, alts, offset, window_size, borzoi_session_id)
     print(out_link)
     """
     session_id = generate_session_id()
